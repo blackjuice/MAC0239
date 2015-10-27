@@ -9,6 +9,7 @@
 
 * [Solve a N-Queens Problem Using a SAT Solver](https://sites.google.com/site/haioushen/search-algorithm/solvean-queensproblemusingsatsolver);
 * [Python script to solve N-Queen problem using minisat](http://forrestbao.blogspot.com.br/2007/11/python-script-to-solve-n-queen-problem.html);
+* Might be worth our time: [.pdf](http://www.gcn.us.es/7BWMC/volume/21_queens.pdf)
 
 To play on 8x8: [click me!](http://www.brainmetrix.com/8-queens/)
 

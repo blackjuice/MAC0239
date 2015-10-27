@@ -3,6 +3,7 @@
 * Get recommended [Python](https://www.python.org/) version, or `sudo apt-get install python3-dev`;
 * [Installing PyEDA](http://pyeda.readthedocs.org/en/latest/bdd.html);
 * [Getting Graphviz - Graph Visualization Software](http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.38.0.tar.gz);
+* **NOTE:** to use python 3rd version, execute python with `python3`.
 
 ## Reference:
 

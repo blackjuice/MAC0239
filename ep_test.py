@@ -2,6 +2,8 @@ from pyeda.inter import *
 from subprocess import call
 import os
 
+print ("Entre com N e K:")
+
 def display(point):
     chars = list()
     for r in range(n):
@@ -59,6 +61,12 @@ if (k == 0):
 
     DRL = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in rldiags])
     S = R & C & DLR & DRL
+
+#    print ("for each one test:")
+#    print (R.is_one())
+#    print (C.is_one())
+#    print (DLR.is_one())
+#    print (DRL.is_one())
 
 if (k > 0):
     # Row constraint

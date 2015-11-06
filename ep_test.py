@@ -7,10 +7,14 @@ def display(point, restricts):
     chars = list()
     for r in range(n):
         for c in range(n):
+            # caso a posição (x, y) esteja em X e seja 1, então temos uma rainha em (x, y)
             if (X[r, c] in point.keys() and point[X[r, c]]):
                 chars.append(" Q ")
+            # caso a posição (x, y) não esteja em X (devido ao restrict({X[x][y]: 1})),
+            # mas esteja em restricts, então temos uma rainha em (x, y)
             elif (~(X[r, c] in point.keys()) and (r, c) in restricts):
                 chars.append(" Q ")
+            # posição vazia
             else:
                 chars.append(" . ")
         if r != (n - 1):
@@ -38,13 +42,13 @@ X = exprvars("x", n, n)
 restricts = []
 
 if (k == 0):
-    # Row constraint
+    # Restrição de linha
     R = And(*[OneHot(*[X[r,c] for c in range(n)]) for r in range(n)])
     
-    # Column constraint
+    # Restrição de coluna
     C = And(*[OneHot(*[X[r,c] for r in range(n)]) for c in range(n)])
     
-    # Diagonal constraint (Left - Rigth)
+    # Restrição da diagonal NW - SE
     starts = [(i, 0) for i in range(n - 2, 0, -1)] + [(0, i) for i in range(n - 1)]
     lrdiags = []
     for r, c in starts:
@@ -57,7 +61,7 @@ if (k == 0):
 
     DLR = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in lrdiags])
     
-    # Diagonal constraint (Rigth - Left)
+    # Restrição da diagonal NE - SW
     starts = [(i, n-1) for i in range(n - 2, -1, -1)] + [(0, i) for i in range(n - 2, 0, -1)]
     rldiags = []
     for r, c in starts:
@@ -71,20 +75,15 @@ if (k == 0):
     DRL = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in rldiags])
     S = R & C & DLR & DRL
 
-#    print ("for each one test:")
-#    print (R.is_one())
-#    print (C.is_one())
-#    print (DLR.is_one())
-#    print (DRL.is_one())
 
 if (k > 0):
-    # Row constraint
+    # Restrição de linha
     R = And(*[OneHot(*[X[r,c] for c in range(n)]) for r in range(n)])
 
-    # Column constraint
+    # Restrição de coluna
     C = And(*[OneHot(*[X[r,c] for r in range(n)]) for c in range(n)])
     
-    # Diagonal constraint (Left - Rigth)
+    # Restrição da diagonal NW - SE
     starts = [(i, 0) for i in range(n - 2, 0, -1)] + [(0, i) for i in range(n - 1)]
     lrdiags = []
     for r, c in starts:
@@ -97,7 +96,7 @@ if (k > 0):
 
     DLR = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in lrdiags])
 
-    # Diagonal constraint (Rigth - Left)
+    # Restrição da diagonal NE - SW
     starts = [(i, n - 1) for i in range(n - 2, -1, -1)] + [(0, i) for i in range(n - 2, 0, -1)]
     rldiags = []
     for r, c in starts:
@@ -112,6 +111,7 @@ if (k > 0):
 
     for i in range(0, k):
         x, y = [int(j) for j in input().split()]
+        # o array restricts irá guardar os casos em que X[x][y] vale 1
         restricts.append((x, y)) 
         R = R.restrict({X[x][y]: 1})
         C = C.restrict({X[x][y]: 1})
@@ -129,5 +129,5 @@ if (S.satisfy_one() == None):
     print("UNSAT")
 else:
     print("SAT")
-    # impressao do tabuleiro
+    # impressão do tabuleiro
     display(S.satisfy_one(), restricts)

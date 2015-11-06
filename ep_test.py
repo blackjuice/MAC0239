@@ -2,6 +2,17 @@ from pyeda.inter import *
 from subprocess import call
 import os
 
+def display(point):
+    chars = list()
+    for r in range(n):
+        for c in range(n):
+            if point[ X[r, c] ]:
+                chars.append("Q")
+            else:
+                chars.append(".")
+        if r != (n - 1):
+            chars.append("\n")
+    print ("".join(chars))
 
 def Export2Image(b, fmt, file_name):
     # Exporta o diagrama para o Graphviz (linguagem Dot)
@@ -11,11 +22,9 @@ def Export2Image(b, fmt, file_name):
     call(['dot', '-T' + fmt, 'temp.gv', '-o' + file_name])
     os.remove('temp.gv')
 
-n, k = [int(j) for j in input("Enter two numbers here: ").split()]
-
+# pegando N e K como entrada
+n, k = [int(j) for j in input().split()]
 X = exprvars("x", n, n)
-
-print(X)
 
 if (k == 0):
     # Row constraint
@@ -25,7 +34,7 @@ if (k == 0):
     C = And(*[OneHot(*[X[r,c] for r in range(n)]) for c in range(n)])
     
     # Diagonal constraint (Left - Rigth)
-    starts = [(i, 0) for i in range(n-2, 0, -1)] + [(0, i) for i in range(n-1)]
+    starts = [(i, 0) for i in range(n - 2, 0, -1)] + [(0, i) for i in range(n - 1)]
     lrdiags = []
     for r, c in starts:
         lrdiags.append([])
@@ -38,7 +47,7 @@ if (k == 0):
     DLR = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in lrdiags])
 
     # Diagonal constraint (Rigth - Left)
-    starts = [(i, n-1) for i in range(n-2, -1, -1)] + [(0, i) for i in range(n-2, 0, -1)]
+    starts = [(i, n-1) for i in range(n - 2, -1, -1)] + [(0, i) for i in range(n - 2, 0, -1)]
     rldiags = []
     for r, c in starts:
         rldiags.append([])
@@ -49,7 +58,6 @@ if (k == 0):
             ci -= 1
 
     DRL = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in rldiags])
-
     S = R & C & DLR & DRL
 
 if (k > 0):
@@ -60,7 +68,7 @@ if (k > 0):
     C = And(*[OneHot(*[X[r,c] for r in range(n)]) for c in range(n)])
     
     # Diagonal constraint (Left - Rigth)
-    starts = [(i, 0) for i in range(n-2, 0, -1)] + [(0, i) for i in range(n-1)]
+    starts = [(i, 0) for i in range(n - 2, 0, -1)] + [(0, i) for i in range(n - 1)]
     lrdiags = []
     for r, c in starts:
         lrdiags.append([])
@@ -73,7 +81,7 @@ if (k > 0):
     DLR = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in lrdiags])
 
     # Diagonal constraint (Rigth - Left)
-    starts = [(i, n-1) for i in range(n-2, -1, -1)] + [(0, i) for i in range(n-2, 0, -1)]
+    starts = [(i, n - 1) for i in range(n - 2, -1, -1)] + [(0, i) for i in range(n - 2, 0, -1)]
     rldiags = []
     for r, c in starts:
         rldiags.append([])
@@ -86,7 +94,7 @@ if (k > 0):
     DRL = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in rldiags])
 
     for i in range(0, k):
-        x, y = [int(j) for j in input("Enter two numbers here: ").split()]
+        x, y = [int(j) for j in input().split()]
         R = R.restrict({X[x][y]: 1})
         C = C.restrict({X[x][y]: 1})
         DLR = DLR.restrict({X[x][y]: 1})
@@ -97,8 +105,13 @@ if (k > 0):
 S = S.to_cnf()
 bdd = expr2bdd(S)
 Export2Image(bdd, 'pdf', 'bdd1.pdf')
+
 #print(S.is_cnf())
 #print(S.is_zero())
+#print (S.is_one())
+#print(len(S.xs))
+#print (X)
 
-print(len(S.xs))
-print (S)
+# impressao do tabuleiro
+display(S.satisfy_one())
+#print (S.satisfy_one())

@@ -3,12 +3,13 @@ from subprocess import call
 import os
 
 
-def display(point):
+def display(point, restricts):
     chars = list()
     for r in range(n):
         for c in range(n):
-            #print(X[r][c])
-            if (point[X[r][c]]):
+            if (X[r, c] in point.keys() and point[X[r, c]]):
+                chars.append(" Q ")
+            elif (~(X[r, c] in point.keys()) and (r, c) in restricts):
                 chars.append(" Q ")
             else:
                 chars.append(" . ")
@@ -34,6 +35,7 @@ def Export2Image(b, fmt, file_name):
 print ("Entre com N e K:")
 n, k = [int(j) for j in input().split()]
 X = exprvars("x", n, n)
+restricts = []
 
 if (k == 0):
     # Row constraint
@@ -110,6 +112,7 @@ if (k > 0):
 
     for i in range(0, k):
         x, y = [int(j) for j in input().split()]
+        restricts.append((x, y)) 
         R = R.restrict({X[x][y]: 1})
         C = C.restrict({X[x][y]: 1})
         DLR = DLR.restrict({X[x][y]: 1})
@@ -120,12 +123,11 @@ if (k > 0):
 
 bdd = expr2bdd(S)
 Export2Image(bdd, 'pdf', 'bdd1.pdf')
-
-
+S = S.to_cnf()
 
 if (S.satisfy_one() == None):
     print("UNSAT")
 else:
     print("SAT")
     # impressao do tabuleiro
-    display(S.satisfy_one())
+    display(S.satisfy_one(), restricts)

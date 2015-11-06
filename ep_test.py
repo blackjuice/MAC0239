@@ -87,10 +87,10 @@ if (k > 0):
 
     for i in range(0, k):
         x, y = [int(j) for j in input("Enter two numbers here: ").split()]
-        R.restrict({X[x][y]: 1})
-        C.restrict({X[x][y]: 1})
-        DLR.restrict({X[x][y]: 1})
-        DRL.restrict({X[x][y]: 1}) 
+        R = R.restrict({X[x][y]: 1})
+        C = C.restrict({X[x][y]: 1})
+        DLR = DLR.restrict({X[x][y]: 1})
+        DRL = DRL.restrict({X[x][y]: 1}) 
 
     S = R & C & DLR & DRL
 

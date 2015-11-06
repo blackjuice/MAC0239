@@ -2,19 +2,22 @@ from pyeda.inter import *
 from subprocess import call
 import os
 
-print ("Entre com N e K:")
 
 def display(point):
     chars = list()
     for r in range(n):
         for c in range(n):
-            if point[ X[r, c] ]:
-                chars.append("Q")
+            #print(X[r][c])
+            if (point[X[r][c]]):
+                chars.append(" Q ")
             else:
-                chars.append(".")
+                chars.append(" . ")
         if r != (n - 1):
             chars.append("\n")
     print ("".join(chars))
+
+
+
 
 def Export2Image(b, fmt, file_name):
     # Exporta o diagrama para o Graphviz (linguagem Dot)
@@ -24,7 +27,11 @@ def Export2Image(b, fmt, file_name):
     call(['dot', '-T' + fmt, 'temp.gv', '-o' + file_name])
     os.remove('temp.gv')
 
+
+
+
 # pegando N e K como entrada
+print ("Entre com N e K:")
 n, k = [int(j) for j in input().split()]
 X = exprvars("x", n, n)
 
@@ -47,7 +54,7 @@ if (k == 0):
             ci += 1
 
     DLR = And(*[OneHot0(*[X[r,c] for r, c in diag]) for diag in lrdiags])
-
+    
     # Diagonal constraint (Rigth - Left)
     starts = [(i, n-1) for i in range(n - 2, -1, -1)] + [(0, i) for i in range(n - 2, 0, -1)]
     rldiags = []
@@ -110,16 +117,15 @@ if (k > 0):
 
     S = R & C & DLR & DRL
 
-S = S.to_cnf()
+
 bdd = expr2bdd(S)
 Export2Image(bdd, 'pdf', 'bdd1.pdf')
 
-#print(S.is_cnf())
-#print(S.is_zero())
-#print (S.is_one())
-#print(len(S.xs))
-#print (X)
 
-# impressao do tabuleiro
-display(S.satisfy_one())
-#print (S.satisfy_one())
+
+if (S.satisfy_one() == None):
+    print("UNSAT")
+else:
+    print("SAT")
+    # impressao do tabuleiro
+    display(S.satisfy_one())

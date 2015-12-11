@@ -23,3 +23,14 @@ Modelo B:
     [(“x1”),(“x2”),()]
     EU(x2)(x1)
     (“x2”)
+
+## [Importing a function from a class in another file?](http://stackoverflow.com/questions/6757192/importing-a-function-from-a-class-in-another-file)
+
+```python
+from otherfile import TheClass
+theclass = TheClass()
+# if you want to return the output of run
+return theclass.run()  
+# if you want to return run itself to be used later
+return theclass.run
+```

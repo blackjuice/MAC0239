@@ -4,6 +4,7 @@
 * [Installing PyEDA](http://pyeda.readthedocs.org/en/latest/bdd.html);
 * [Getting Graphviz - Graph Visualization Software](http://www.graphviz.org/pub/graphviz/stable/SOURCES/graphviz-2.38.0.tar.gz);
 * **NOTE:** to use python 3rd version, execute python with `python3`.
+* **NOTE:** to get pip: ``sudo apt-get install python3-pip``. To install PyEDA with pip3: instead of``pip3 install pyeda``, go with ``pip-3.2 install pyeda``
 
 ## Reference:
 

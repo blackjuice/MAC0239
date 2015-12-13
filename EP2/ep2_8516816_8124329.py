@@ -10,14 +10,8 @@ from pyeda.inter import *
 import os
 import re
 import string
-#------------main--------------
-'''
-'''
-numeroEstados = int(input())
-kripke = input()
-rotulos = input()
-formulaCTL = str( CTLtree( input() ) ) #formulaCTL = input(); formulaCTL = str( CTLtree(formulaCTL) )
-interest = input()
+
+#------------functions--------------
 
 # devolve uma lista com todos os inteiros envolvidos em um string
 # uso highProposicao (rotulos)
@@ -27,78 +21,62 @@ def highProposicao (str):
     #print(max(high_Xi)); return int( max(high_Xi) )
     return (high_Xi)
 
+# Standard valor no dicionario
+def default_ddt_value (rotulos, numeroEstados):
+    # criando uma conjuncao com todas as proposicoes envolvidas
+    high_Xi = int ( max(highProposicao (rotulos)) ) # maior proposicao
+    str_all_value = "~X[0]"
+    for i in range( 1, high_Xi ):
+        str_all_value = str_all_value + " & " + "~" + "X[" + str(i) + "]"
 
-# criando uma conjuncao com todas as proposicoes envolvidas
-high_Xi = int ( max(highProposicao (rotulos)) )
-print (high_Xi)
+    # Todos os valores do dicionario contem conjuncao do tipo Phi( ~x_i )
+    # com i = 0..N-1
+    str_tmp = "" # limpando str_tmp
+    str_tmp = [i for i in range( numeroEstados) ]
+    ddt = {el:str_all_value for el in str_tmp}
+    return (ddt)
+
+# Atualizacao do dicionario
+def update_ddt_value (arrayStr_listaEstados, numeroEstados, ddt):
+    for i in range( numeroEstados ):
+        array_tmp = ""
+        # Lemos um rotulo por vez
+        array_tmp = highProposicao ( arrayStr_listaEstados[i] )
+
+        # Se estado/rotulo nao for vazio, continue:
+        if len(array_tmp) != 0:
+            # verificamos cada proposicao
+            for j in range( len(array_tmp) ):
+                str_tmp = "" # limpamos str_tmp
+                str_tmp_new = "X[" + str( array_tmp[j] - 1 ) + "]"
+                str_tmp = "~" + str_tmp_new
+
+                # atualizamos o value do key[i]
+                resposta = ddt[i].replace(str_tmp, str_tmp_new)
+                ddt[i] = resposta
+        else:
+            print ("empty")
+
+    print (ddt)
+    return (ddt)
+
+#------------main--------------
+numeroEstados = int(input())
+kripke = input()
+rotulos = input()
+formulaCTL = str( CTLtree( input() ) )
+interest = input()
+
 X = bddvars("x", 3)
-str_all_value = "~X[0]"
-for i in range( 1, high_Xi ):
-    str_all_value = str_all_value + " & " + "~" + "X[" + str(i) + "]"
-print (str_all_value)
 
-'''
-cada um tem o negocio certo
-agora preciso ler da lista de rotulos e separar cada () como um grupo
-'''
-#numeroEstados = 2
-
-# colocando str_all_value como valores no dicionario,
-# com cada key como um i, tal que i = 0..N-1
-str_tmp = "" # limpando str_tmp
-str_tmp = [i for i in range( numeroEstados) ]
-ddt = {el:str_all_value for el in str_tmp}
-print (ddt)
+# criando dicionario
+ddt = default_ddt_value (rotulos, numeroEstados)
 
 # guarda todos os estados em uma lista
-print (rotulos)
 arrayStr_listaEstados = re.findall("\((.*?)\)", rotulos)
-print ( arrayStr_listaEstados, len(arrayStr_listaEstados) )
 
-here = "NEW"
-#resposta = re.sub( r"\((.*?)\)", "[(“x1”,”x2”),(“x2”,“x3”),(“x3”)]", here )
-resposta = re.sub( r"\((.*?)\)", here, "[(“x1”,”x2”),(“x2”,“x3”),(“x3”)]" )
-print ( resposta )
-'''
-if (len(arrayStr_listaEstados) == numeroEstados):
-    print ("numero de rotulos == numero de estados!!!")
-else:
-    print ("numero de rotulos != numero de estados!!!")
-'''
+# atualizamos dicionario
+ddt = update_ddt_value (arrayStr_listaEstados, numeroEstados, ddt)
 '''
 
-
-str_tmp_new = "X[" + str( i ) + "]"
-str_tmp = "~" + str_tmp_new
-print ( str_tmp_new )
-print ( str_tmp )
 '''
-# percorro cada rotulo
-for i in range( numeroEstados ): #for i in range( len(arrayStr_listaEstados) ):
-    # Lemos um rotulo por vez
-    array_tmp = highProposicao ( arrayStr_listaEstados[i] )
-
-    # Se estado/rotulo nao for vazio, continue:
-    if len(array_tmp) != 0:
-        # verificamos cada proposicao
-        for j in range( len(array_tmp) ):
-            str_tmp = "" # limpamos str_tmp
-            
-            str_tmp_new = "X[" + str( array_tmp[j] - 1 ) + "]"
-            str_tmp = "~" + str_tmp_new
-            #print ( str_tmp_new ); print ( str_tmp )
-
-            # atualizamos o value do key[i]
-            resposta = ddt[i].replace(str_tmp, str_tmp_new)
-            #print ("dicionario = " + ddt[0] + str(i))
-            # substituimos ~X[j] por X[j] se conter no estado            
-            #resposta = re.sub( r"\((.*?)\)", here, "[(“x1”,”x2”),(“x2”,“x3”),(“x3”)]" )
-            #print (resposta)
-
-            ddt[i] = resposta
-
-
-    else:
-        print ("empty")
-
-print (ddt)

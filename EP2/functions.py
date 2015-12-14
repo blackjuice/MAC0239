@@ -1,20 +1,79 @@
-# Algoritmo apply
-    # Bf = Bx', Bg = B->
-    def Apply(op, Bf, Bg):
-        str = Bf + str(op) + Bg
-        if (Bf.lo ~= None and Bf.hi ~= None) and (Bg.lo ~= None and Bg.hi ~= None):
-            Apply(op, Bf.hi, Bg.hi)
-            Apply(op, Bf.lo, Bg.lo)
-        if (Bf.lo ~= None and Bf.hi ~= None) and (Bg.lo == None and Bg.hi == None):
-            Apply(op, Bf.hi, Bg)
-            Apply(op, Bf.lo, Bg)
-        if (Bf.lo == None and Bf.hi == None) and (Bg.lo ~= None and Bg.hi ~= None):
-            Apply(op, Bf, Bg.hi)
-            Apply(op, Bf, Bg.lo)
-        if (Bf.lo == None and Bf.hi == None) and (Bg.lo == None and Bg.hi == None):  
-            str = Bf + str(op) + Bg
-        return (str)
-    # Algoritmo exisits
-    def Exists(op, Bf, x):
-        return Apply(op, Bf.restric(x, 0), Bf.restrict(x, 1))
+    
+    # OBS: op = *
+def Exists(Bf, x):
+    return (Bf.restric({x: 0}) & Bf.restrict({x: 1}))
+
+def SAT(phi, S):    
+    if (phi.kind == "1"):
+        return S
+
+    if (phi.kind == "0"):
+        return None
+
+    if (phi.child[0] == None and phi.child[1] == None):
+        return  phi.kind & S.restrict({phi.kind:1})
+ 
+    if (phi.kind == "-"):
+        SAT(phi.child[0], S))
+
+    if (phi.kind == "+" and phi.child[0] ~= None and phi.child[1] ~= None):
+        return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) 
+
+    if (phi.kind == "*" and phi.child[0] ~= None and phi.child[1] ~= None):
+        return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) 
+
+    if (phi.kind == "AX"):
+        return(SAT(CTLfree.parse("- EX -" + str(phi.child[0])), S))
+
+    if (phi.kind == "AU"):
+        string = "+-(EU + -" + str(phi.child[0]) + ")(*(-" + str(phi.child[0]) + ")(-" + str(phi.child[1]) + "))(EG -" + str(phi.child[1]) + ")"
+        SAT(CTLfree.parse(string), S)
+
+    if (phi.kind == "EX"):
+        SAT_EX(phi, S)
+
+    if (phi.kind == "EU"):
+        SAT_EU(phi.child[0], phi.child[1], S)
+
+    if (phi.kind == "EF"):
+        SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S)
+
+    if (phi.kind == "EG"):
+        SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S)
+
+    if (phi.kind == "AF"):
+        SAT_AF(phi.child[0], S)
+
+    if (phi.kind == "AG"):
+        SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S)
+
+
+
+def SAT_AF(phi, S):
+    X = S
+    Y = SAT(phi, S)
+    while (X ~= Y):
+        X = Y
+        Y = Y | Pre_forte(Y)
+    return (Y)
+
+
+
+
+def SAT_EU(phi, psi, S):
+    W = SAT(phi, S)
+    Y = SAT(psi, S)
+    X = S
+    while (X ~= Y):
+        X = Y  
+        Y = Y | (W & Pre_fraca(Y))
+    return (Y)    
+    
+        
+
+def SAT_EX(phi, S):
+    X = SAT(phi, S)
+    Y = Pre_fraca(X)
+    return Y
+
     

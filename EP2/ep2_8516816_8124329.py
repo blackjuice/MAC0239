@@ -84,12 +84,98 @@ def convert_X_to_Xprime (str_tmp):
 # write Bs
 def write_B_s (ddt):
     b_s = ""
-    print (len(ddt))
     for i in range(len(ddt)):
         # atualiza b_s
         b_s = b_s + " | " + ddt[i]
     b_s = b_s[3:] # apagando 3 primeiros char
     return (b_s)
+
+# Calculo da pre imagem fraca
+def Pre_fraca (kripke, ddt, modeloPhi):
+    kripke = ( separaParenteses_em_grupos (kripke) )
+    len_kripke = len(kripke)
+    lst1 = [0] * len_kripke
+    lst2 = [0] * len_kripke
+    b_arrow = ""
+
+    for i in range( len_kripke ):
+        # lista temporaria contem os pares kripkes
+        lst_tmp = array_all_int (kripke[i])
+        # Do par(f,g), fazemos str_tmp = X[i] & X'[j]
+        lst1[i] = ddt[ lst_tmp[0] ]
+        lst2[i] = convert_X_to_Xprime ( ddt[ lst_tmp[1] ] )
+
+    array_b_prime = write_array_B_prime (ddt, modeloPhi)
+    print ( array_b_prime)
+
+    for i in range( len_kripke ):
+        lado1 = expr2bdd( expr(lst2[i]) )
+
+        for j in range( len(array_b_prime) ):
+            lado2 = expr2bdd( expr(array_b_prime[j]) )
+            str_tmp = ""
+            print (lst1[i], "= * =", lst2[i], "= * =", array_b_prime[j])
+
+            f = (lado1) & (lado2)
+            if (f.is_zero() != True):
+                str_tmp = lst1[i]
+                b_arrow = b_arrow + " | " + str_tmp
+
+    b_arrow = b_arrow[3:] # apagando 3 primeiros char
+    b_arrow_BDD = expr2bdd( expr(b_arrow) )
+    return (b_arrow_BDD)
+
+# construindo agora o Bx'
+def write_array_B_prime (ddt, modeloPhi):
+    array_b_prime = [0] * len(ddt)
+
+    if (modeloPhi == "0" or modeloPhi == "1"):
+        return modeloPhi
+
+    j = 0; b_prime = ""; guarda_operador = ""; guarda_proposicao = False;
+    for c in modeloPhi:
+        if (c == "+" or c == "*"):
+            guarda_operador = c
+
+    array_tmp = array_all_int (modeloPhi)
+    modeloPhi_array = array_muda_sinal (array_tmp, modeloPhi)
+
+    # percorre dicionario e procura todas as proposicoes
+    # envolvidas no modelo
+    for i in range(numeroEstados):
+        array_tmp = array_muda_sinal ( (array_all_int (ddt[i])) , ddt[i])
+
+        if guarda_operador != "":
+            if (guarda_operador == "*"):
+                for j in range( len(modeloPhi_array) ):
+                    hold = False
+                    if modeloPhi_array[j] in array_tmp:
+                        hold = True
+                    else: break;
+            if (guarda_operador == "+"):
+                for j in range( len(modeloPhi_array) ):
+                    hold = False
+                    if modeloPhi_array[j] in array_tmp:
+                        hold = True; break;
+
+        else:
+            hold = False
+            if modeloPhi_array[0] in array_tmp:
+                hold = True
+
+        if hold == True:
+            array_b_prime[j] = convert_X_to_Xprime (ddt[i])
+            j = j + 1
+
+    new_array_b_prime = [0] * j
+    for i in range(j):
+        new_array_b_prime[i] = array_b_prime[i]
+
+    return new_array_b_prime
+
+
+
+
 
 # Criamos BDD do B->
 def write_B_arrow (kripke, ddt):
@@ -104,13 +190,16 @@ def write_B_arrow (kripke, ddt):
         str_tmp = ( ddt[ lst_tmp[0] ] + 
                     " & " +
                     convert_X_to_Xprime ( ddt[ lst_tmp[1] ] ) )
+
+        #guarda_conjunto_b_arrow
+
         # atualiza b_arrow
         b_arrow = b_arrow + " | " + str_tmp
 
     b_arrow = b_arrow[3:] # apagando 3 primeiros char
     return (b_arrow)
 
-# construindo agora o Bx', que eh mais complicado.
+# construindo agora o Bx'
 def write_B_xPrime (ddt, modeloPhi):
 
     if (modeloPhi == "0" or modeloPhi == "1"):
@@ -183,18 +272,19 @@ b_s = write_B_s (ddt)
 # construimos B->
 b_arrow = write_B_arrow (kripke, ddt)
 
+
+
+
 # construimos Bx
 #   exemplos para testar modelos
-#    modeloPhi = "+(x1)(x2)"
-#    modeloPhi = "x3"
-#    modeloPhi = "1"
+modeloPhi = "+(x1)(x2)"; print (modeloPhi)
+#modeloPhi = "x2"; print (modeloPhi)
+#    modeloPhi = "1"; print (modeloPhi)
 b_prime =  write_B_xPrime (ddt, modeloPhi)
 #print (b_prime)
 
+print (Pre_fraca (kripke, ddt, modeloPhi))
 
-def Pre_fraca(modeloPhi):
-    #b_result = apply (op, b_arrow, b_prime)
 
-    return 0
 
 #def Pre_forte(modeloPhi):

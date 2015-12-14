@@ -40,7 +40,10 @@ def default_ddt_value (rotulos, numeroEstados):
     return (ddt)
 
 # Atualizacao do dicionario
-def update_ddt_value (arrayStr_listaEstados, numeroEstados, ddt):
+def update_ddt_value (rotulos, numeroEstados, ddt):
+    # guarda todos os estados em uma lista
+    arrayStr_listaEstados = separaParenteses_em_grupos (rotulos)
+
     for i in range( numeroEstados ):
         array_tmp = ""
         # Lemos um rotulo por vez
@@ -87,7 +90,8 @@ def write_B_arrow (kripke, ddt):
 numeroEstados = int(input())
 kripke = input()
 rotulos = input()
-formulaCTL = str( CTLtree( input() ) )
+#formulaCTL = str( CTLtree( input() ) )
+formulaCTL = CTLtree( input() )
 interest = input()
 X = bddvars("x", numeroEstados)
 Y = bddvars("y", numeroEstados)
@@ -95,23 +99,31 @@ Y = bddvars("y", numeroEstados)
 # criando dicionario
 ddt = default_ddt_value (rotulos, numeroEstados)
 
-# guarda todos os estados em uma lista
-arrayStr_listaEstados = separaParenteses_em_grupos (rotulos)
-
 # atualizamos dicionario
-ddt = update_ddt_value (arrayStr_listaEstados, numeroEstados, ddt)
+ddt = update_ddt_value (rotulos, numeroEstados, ddt)
 #print (ddt)
 
 # construimos B->
 b_arrow = write_B_arrow (kripke, ddt)
 
+# construindo agora o Bx', que eh mais complicado.
+def write_B_xPrime (modeloPhi):
+
+
+    return 0
 
 '''
-#print (b_arrow)
+print (b_arrow)
 
 #b_arrow = expr(b_arrow)
 #b_arrow = expr2bdd(b_arrow)
 #print ( b_arrow.satisfy_one() )
 #print ( list( b_arrow.satisfy_all() ) )
 
+
+testing
+#CTLtree.parse(str)
+str_tmp = "AU(AU(EX 1)(x1))(EU(x2)(0))"
+print (CTLtree(str_tmp))
+print (str(CTLtree.parse(str_tmp)) )
 '''

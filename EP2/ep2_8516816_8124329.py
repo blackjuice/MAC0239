@@ -81,6 +81,16 @@ def convert_X_to_Xprime (str_tmp):
     str_tmp = str_tmp.replace("X", "Y")
     return str_tmp
 
+# write Bs
+def write_B_s (ddt):
+    b_s = ""
+    print (len(ddt))
+    for i in range(len(ddt)):
+        # atualiza b_s
+        b_s = b_s + " | " + ddt[i]
+    b_s = b_s[3:] # apagando 3 primeiros char
+    return (b_s)
+
 # Criamos BDD do B->
 def write_B_arrow (kripke, ddt):
 
@@ -101,7 +111,7 @@ def write_B_arrow (kripke, ddt):
     return (b_arrow)
 
 # construindo agora o Bx', que eh mais complicado.
-def write_B_xPrime (modeloPhi):
+def write_B_xPrime (ddt, modeloPhi):
 
     if (modeloPhi == "0" or modeloPhi == "1"):
         return modeloPhi
@@ -153,55 +163,38 @@ rotulos = input()
 #formulaCTL = str( CTLtree( input() ) )
 formulaCTL = CTLtree( input() )
 interest = input()
-X = bddvars("x", numeroEstados + 1)
-Y = bddvars("y", numeroEstados + 1)
+
+#X = bddvars("x", numeroEstados + 1)
+#Y = bddvars("y", numeroEstados + 1)
+#print (X)
 
 # criando dicionario
 ddt = default_ddt_value (rotulos, numeroEstados)
 #print (ddt); print ()
+
 # atualizamos dicionario
 ddt = update_ddt_value (rotulos, numeroEstados, ddt)
 #print (ddt)
+
+# construimos Bs
+b_s = write_B_s (ddt)
+#print (b_s)
 
 # construimos B->
 b_arrow = write_B_arrow (kripke, ddt)
 
 # construimos Bx
-modeloPhi = "+(x1)(x2)"
-#modeloPhi = "x3"
-#modeloPhi = "1"
-b_prime =  write_B_xPrime (modeloPhi)
-print (b_prime)
-
-'''
-
-b_result = "( " + b_arrow + ") & (" + b_prime + ")"
-
-#print (b_result)
-b_result = expr2bdd( expr(b_result) )
-#print ( list( b_result.satisfy_all() ) )
+#   exemplos para testar modelos
+#    modeloPhi = "+(x1)(x2)"
+#    modeloPhi = "x3"
+#    modeloPhi = "1"
+b_prime =  write_B_xPrime (ddt, modeloPhi)
+#print (b_prime)
 
 
-x, y, z = map(bddvar, 'xyz')
-f = ~x & ~y & ~z & 1
-print (list(f.satisfy_all()))
-print (f)
-print (truthtable2expr(f))
-print (f.is_one())
-print (f.is_zero())
+def Pre_fraca(modeloPhi):
+    #b_result = apply (op, b_arrow, b_prime)
 
+    return 0
 
-A = exprvars('a', 3)
-#print (f.satisfy_count())
-f = truthtable(A, "00000000")
-if f.satisfy_one() == None:
-    print ("okay....")
-
-
-NO FINAL
-if f.satisfy_one() == None:
-    print ("UNSAT")
-else:
-    print ("SAT")
-    print ("lista de todos os estados que SAT")
-'''
+#def Pre_forte(modeloPhi):

@@ -1,5 +1,3 @@
-# Code by Luis Gustavo Rocha Vianna
-
 # Classe CTLtree com a estrutura em árvore de fórmulas CTL
 
 # A variável "kind" é o a operação da fórmula, podendo ser "+", "*", "-", 

@@ -27,25 +27,25 @@ def SAT(phi, S):
 
     if (phi.kind == "AU"):
         string = "+-(EU + -" + str(phi.child[0]) + ")(*(-" + str(phi.child[0]) + ")(-" + str(phi.child[1]) + "))(EG -" + str(phi.child[1]) + ")"
-        SAT(CTLfree.parse(string), S)
+        return(SAT(CTLfree.parse(string), S))
 
     if (phi.kind == "EX"):
-        SAT_EX(phi, S)
+        return(SAT_EX(phi.child[0], S))
 
     if (phi.kind == "EU"):
-        SAT_EU(phi.child[0], phi.child[1], S)
+        return(SAT_EU(phi.child[0], phi.child[1], S))
 
     if (phi.kind == "EF"):
-        SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S)
+        return(SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S))
 
     if (phi.kind == "EG"):
-        SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S)
+        return(SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S))
 
     if (phi.kind == "AF"):
-        SAT_AF(phi.child[0], S)
+        return(SAT_AF(phi.child[0], S))
 
     if (phi.kind == "AG"):
-        SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S)
+        return(SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S))
 
 
 

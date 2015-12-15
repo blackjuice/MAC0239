@@ -239,10 +239,10 @@ def SAT(phi, S):
         SAT(phi.child[0], S)
 
     if (phi.kind == "+" and phi.child[0] != None and phi.child[1] != None):
-        return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) 
+        return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) )
 
     if (phi.kind == "*" and phi.child[0] != None and phi.child[1] != None):
-        return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) 
+        return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) )
 
     if (phi.kind == "AX"):
         return(SAT(CTLfree.parse("- EX -" + str(phi.child[0])), S))
@@ -273,7 +273,7 @@ def SAT(phi, S):
 def SAT_AF(phi, S):
     X = S
     Y = SAT(phi, S)
-    while (X ~= Y):
+    while (X != Y):
         X = Y
         Y = Y | Pre_forte(Y)
     return (Y)

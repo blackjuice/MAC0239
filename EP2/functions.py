@@ -15,7 +15,7 @@ def SAT(phi, S):
         return  phi.kind & S.restrict({phi.kind:1})
  
     if (phi.kind == "-"):
-        return (phi.child[0] & S.restrict({phi.child[0]: 0}))
+        return (expr(phi.child[0]) & S.restrict({phi.child[0]: 0}))
 
     if (phi.kind == "+" and phi.child[0] != None and phi.child[1] ~= None):
         return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) 

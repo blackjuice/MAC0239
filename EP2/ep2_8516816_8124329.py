@@ -214,6 +214,7 @@ def Pre_fraca (kripke, ddt, array_b_prime):
                 #print (str_tmp)
 
     b_arrow = b_arrow[3:] # apagando 3 primeiros char
+    b_arrow = expr2bdd(expr(b_arrow))
     return (b_arrow)
 
 def Pre_forte (b_s, kripke, ddt, modeloPhi):
@@ -230,13 +231,14 @@ def SAT(phi, S):
         return S
 
     if (phi.kind == "0"):
-        return None
+        return expr2bdd(expr("None"))
 
-    if (phi.childs[0] == None and phi.childs[1] == None):
-        return  phi.kind & S.restrict({phi.kind:1})
+    if (phi.childs == None):
+        return  (expr2bdd(expr(phi.kind)) & S.restrict({bddvar(phi.kind): 1}))
  
     if (phi.kind == "-"):
-        SAT(phi.childs[0], S)
+        #return (expr2bdd(expr(phi.childs[0])) & S.restrict({phi.childs[0]: 0}))
+        return(S | ~SAT(phi.childs[0], S))
 
     if (phi.kind == "+" and phi.childs[0] != None and phi.childs[1] != None):
         return(SAT(phi.childs[0], S) | (SAT(phi.childs[1], S)) )
@@ -248,26 +250,26 @@ def SAT(phi, S):
         return(SAT(CTLtree.parse("- EX -" + str(phi.childs[0])), S))
 
     if (phi.kind == "AU"):
-        string = "+-(EU + -" + str(phi.childs[0]) + ")(*(-" + str(phi.childs[0]) + ")(-" + str(phi.childs[1]) + "))(EG -" + str(phi.childs[1]) + ")"
-        SAT(CTLtree.parse(string), S)
+        string = "+-(EU -" + str(phi.childs[0]) + ")(*(-" + str(phi.childs[0]) + ")(-" + str(phi.childs[1]) + "))(EG -" + str(phi.childs[1]) + ")"
+        return(SAT(CTLtree(string), S))
 
     if (phi.kind == "EX"):
-        SAT_EX(phi, S)
+        return(SAT_EX(phi.childs[0], S))
 
     if (phi.kind == "EU"):
-        SAT_EU(phi.childs[0], phi.childs[1], S)
+        return(SAT_EU(phi.childs[0], phi.childs[1], S))
 
     if (phi.kind == "EF"):
-        SAT(CTLtree.parse("EU(1)(" + str(phi.childs[0]) + ")"), S)
+        return(SAT(CTLtree("EU(1)(" + str(phi.childs[0]) + ")"), S))
 
     if (phi.kind == "EG"):
-        SAT(CTLtree.parse("- AF -" + str(phi.childs[0])), S)
+        return(SAT(CTLtree("- AF -" + str(phi.childs[0])), S))
 
     if (phi.kind == "AF"):
-        SAT_AF(phi.childs[0], S)
+        return(SAT_AF(phi.childs[0], S))
 
     if (phi.kind == "AG"):
-        SAT(CTLtree.parse("- EF -" + str(phi.childs[0])), S)
+        return(SAT(CTLtree("-EF (-" + str(phi.childs[0]) + ")"), S))
 
 
 def SAT_AF(phi, S):
@@ -284,12 +286,15 @@ def SAT_EU(phi, psi, S):
     X = S
     while (X != Y):
         X = Y  
-        Y = Y | (W & Pre_fraca(Y))
+        #Y = Y | (W & Pre_fraca(Y))
+        array_b_prime = write_array_B_prime (ddt, str(phi))
+        Y = Y | (W & Pre_fraca (kripke, ddt, array_b_prime))
     return (Y)    
     
 def SAT_EX(phi, S):
     X = SAT(phi, S)
-    Y = Pre_fraca(kripke, ddt, X)
+    array_b_prime = write_array_B_prime (ddt, str(phi))
+    Y = Pre_fraca(kripke, ddt, array_b_prime)
     return Y
 
 
@@ -298,7 +303,7 @@ def SAT_EX(phi, S):
 numeroEstados = int(input())
 kripke = input()
 rotulos = input()
-formulaCTL = CTLtree( input() )
+formulaCTL = CTLtree(input())
 interest = input()
 
 # criando dicionario
@@ -312,9 +317,11 @@ b_s = write_B_s (ddt)
 S = expr2bdd( expr(b_s) ) # conversao para BDD
 
 # Aplicacao do algoritmo SAT
-if SAT(formulaCTL, S).satisfy_one() == None:
+if (SAT(formulaCTL, S) == None):
+    print("UNSAT")
+elif (SAT(formulaCTL, S) != None and SAT(formulaCTL, S).satisfy_one() == None):
     print ("UNSAT")
 else:
     print ("SAT")
     print ("lista de todos os estados que SAT:")
-    print (list( SAT(phi, S).satisfy_all() ))
+    print (list( SAT(formulaCTL, S).satisfy_all() ))

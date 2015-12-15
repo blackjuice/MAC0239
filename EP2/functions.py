@@ -24,11 +24,11 @@ def SAT(phi, S):
         return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) 
 
     if (phi.kind == "AX"):
-        return(SAT(CTLfree.parse("- EX -" + str(phi.child[0])), S))
+        return(SAT(CTLtree.parse("- EX -" + str(phi.child[0])), S))
 
     if (phi.kind == "AU"):
         string = "+-(EU + -" + str(phi.child[0]) + ")(*(-" + str(phi.child[0]) + ")(-" + str(phi.child[1]) + "))(EG -" + str(phi.child[1]) + ")"
-        return(SAT(CTLfree.parse(string), S))
+        return(SAT(CTLtree.parse(string), S))
 
     if (phi.kind == "EX"):
         return(SAT_EX(phi.child[0], S))
@@ -37,16 +37,16 @@ def SAT(phi, S):
         return(SAT_EU(phi.child[0], phi.child[1], S))
 
     if (phi.kind == "EF"):
-        return(SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S))
+        return(SAT(CTLtree.parse("EU(1)(" + str(phi.child[0]) + ")"), S))
 
     if (phi.kind == "EG"):
-        return(SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S))
+        return(SAT(CTLtree.parse("- AF -" + str(phi.child[0])), S))
 
     if (phi.kind == "AF"):
         return(SAT_AF(phi.child[0], S))
 
     if (phi.kind == "AG"):
-        return(SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S))
+        return(SAT(CTLtree.parse("- EF -" + str(phi.child[0])), S))
 
 
 def SAT_AF(phi, S):

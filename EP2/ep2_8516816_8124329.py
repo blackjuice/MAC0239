@@ -241,10 +241,21 @@ def SAT(phi, S):
         return(S | ~SAT(phi.childs[0], S))
 
     if (phi.kind == "+" and phi.childs[0] != None and phi.childs[1] != None):
-        return(SAT(phi.childs[0], S) | (SAT(phi.childs[1], S)) )
+        X = SAT(phi.childs[0], S)
+        Y = SAT(phi.childs[1], S)
+        if (X != None and Y != None):
+            return(X | Y)
+        else: 
+            return expr2bdd(expr("None"))
+
 
     if (phi.kind == "*" and phi.childs[0] != None and phi.childs[1] != None):
-        return(SAT(phi.childs[0], S) & (SAT(phi.childs[1], S)) )
+        X = SAT(phi.childs[0], S)
+        Y = SAT(phi.childs[1], S)
+        if (X != None and Y != None):
+            return(X & Y)
+        else: 
+            return expr2bdd(expr("None"))
 
     if (phi.kind == "AX"):
         return(SAT(CTLtree.parse("- EX -" + str(phi.childs[0])), S))

@@ -221,55 +221,108 @@ def Pre_forte (b_s, kripke, ddt, modeloPhi):
     b_result = b_s + " | ~(" + Pre_fraca (kripke, ddt, array_b_prime) + ")"
     return (b_result)
 
-#------------main--------------
+
+
+#-----------ALGORITMOS SAT----------------------------------------------
+
+def SAT(phi, S):    
+    if (phi.kind == "1"):
+        return S
+
+    if (phi.kind == "0"):
+        return None
+
+    if (phi.child[0] == None and phi.child[1] == None):
+        return  phi.kind & S.restrict({phi.kind:1})
+ 
+    if (phi.kind == "-"):
+        SAT(phi.child[0], S)
+
+    if (phi.kind == "+" and phi.child[0] != None and phi.child[1] != None):
+        return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) 
+
+    if (phi.kind == "*" and phi.child[0] != None and phi.child[1] != None):
+        return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) 
+
+    if (phi.kind == "AX"):
+        return(SAT(CTLfree.parse("- EX -" + str(phi.child[0])), S))
+
+    if (phi.kind == "AU"):
+        string = "+-(EU + -" + str(phi.child[0]) + ")(*(-" + str(phi.child[0]) + ")(-" + str(phi.child[1]) + "))(EG -" + str(phi.child[1]) + ")"
+        SAT(CTLfree.parse(string), S)
+
+    if (phi.kind == "EX"):
+        SAT_EX(phi, S)
+
+    if (phi.kind == "EU"):
+        SAT_EU(phi.child[0], phi.child[1], S)
+
+    if (phi.kind == "EF"):
+        SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S)
+
+    if (phi.kind == "EG"):
+        SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S)
+
+    if (phi.kind == "AF"):
+        SAT_AF(phi.child[0], S)
+
+    if (phi.kind == "AG"):
+        SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S)
+
+
+def SAT_AF(phi, S):
+    X = S
+    Y = SAT(phi, S)
+    while (X ~= Y):
+        X = Y
+        Y = Y | Pre_forte(Y)
+    return (Y)
+
+def SAT_EU(phi, psi, S):
+    W = SAT(phi, S)
+    Y = SAT(psi, S)
+    X = S
+    while (X ~= Y):
+        X = Y  
+        Y = Y | (W & Pre_fraca(Y))
+    return (Y)    
+    
+def SAT_EX(phi, S):
+    X = SAT(phi, S)
+    Y = Pre_fraca(X)
+    return Y
+
+    
+
+
+#------------main------------------------------------------------------------
 numeroEstados = int(input())
 kripke = input()
 rotulos = input()
-#formulaCTL = str( CTLtree( input() ) )
 formulaCTL = CTLtree( input() )
 interest = input()
 
-X = bddvars("x", numeroEstados + 1)
-Y = bddvars("y", numeroEstados + 1)
-#print (X)
-
 # criando dicionario
 ddt = default_ddt_value (rotulos, numeroEstados)
-#print (ddt); print ()
 
 # atualizamos dicionario
 ddt = update_ddt_value (rotulos, numeroEstados, ddt)
-#print (ddt)
-
 
 # construimos Bs
 b_s = write_B_s (ddt)
-#print (b_s)
+S = expr2bdd( expr(b_s) ) # conversao para BDD
 
-# construimos B->
-#b_arrow = write_B_arrow (kripke, ddt)
-#def Pre_forte(modeloPhi):
-#b_prime =  write_B_xPrime (ddt, modeloPhi)
-#print (b_prime)
+# Aplicacao do algoritmo SAT
+if SAT(formulaCTL, S).satisfy_one() == None:
+    print ("UNSAT")
+else:
+    print ("SAT")
+    print ("lista de todos os estados que SAT:")
+    print (list( SAT(phi, S).satisfy_all() ))
 
-
-# construimos Bx
-#   exemplos para testar modelos
-modeloPhi = "x2"; print ("usando como modelo = ", modeloPhi)
-#modeloPhi = "1"; print (modeloPhi)
-#modeloPhi = "+(x1)(x2)"; print (modeloPhi)
-
-
+'''
 array_b_prime = write_array_B_prime (ddt, modeloPhi)
 Pre_fraca (kripke, ddt, array_b_prime)
+print (Pre_fraca (kripke, ddt, array_b_prime))
 Pre_forte (b_s, kripke, ddt, modeloPhi)
-
-#x, y, z = map(bddvar, 'xyz')
-#f = ~(~x | ~y | ~z) | ~(x | y | z)
-#f = X[0] | (~X[1])
-#print (list(f.satisfy_all()))
-#print (f)
-#print (truthtable2expr(f))
-#print (f.is_one())
-#print (f.is_zero())
-
+'''

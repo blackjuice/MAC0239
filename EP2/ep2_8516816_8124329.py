@@ -232,42 +232,42 @@ def SAT(phi, S):
     if (phi.kind == "0"):
         return None
 
-    if (phi.child[0] == None and phi.child[1] == None):
+    if (phi.childs[0] == None and phi.childs[1] == None):
         return  phi.kind & S.restrict({phi.kind:1})
  
     if (phi.kind == "-"):
-        SAT(phi.child[0], S)
+        SAT(phi.childs[0], S)
 
-    if (phi.kind == "+" and phi.child[0] != None and phi.child[1] != None):
-        return(SAT(phi.child[0], S) | (SAT(phi.child[1], S)) )
+    if (phi.kind == "+" and phi.childs[0] != None and phi.childs[1] != None):
+        return(SAT(phi.childs[0], S) | (SAT(phi.childs[1], S)) )
 
-    if (phi.kind == "*" and phi.child[0] != None and phi.child[1] != None):
-        return(SAT(phi.child[0], S) & (SAT(phi.child[1], S)) )
+    if (phi.kind == "*" and phi.childs[0] != None and phi.childs[1] != None):
+        return(SAT(phi.childs[0], S) & (SAT(phi.childs[1], S)) )
 
     if (phi.kind == "AX"):
-        return(SAT(CTLfree.parse("- EX -" + str(phi.child[0])), S))
+        return(SAT(CTLtree.parse("- EX -" + str(phi.childs[0])), S))
 
     if (phi.kind == "AU"):
-        string = "+-(EU + -" + str(phi.child[0]) + ")(*(-" + str(phi.child[0]) + ")(-" + str(phi.child[1]) + "))(EG -" + str(phi.child[1]) + ")"
-        SAT(CTLfree.parse(string), S)
+        string = "+-(EU + -" + str(phi.childs[0]) + ")(*(-" + str(phi.childs[0]) + ")(-" + str(phi.childs[1]) + "))(EG -" + str(phi.childs[1]) + ")"
+        SAT(CTLtree.parse(string), S)
 
     if (phi.kind == "EX"):
         SAT_EX(phi, S)
 
     if (phi.kind == "EU"):
-        SAT_EU(phi.child[0], phi.child[1], S)
+        SAT_EU(phi.childs[0], phi.childs[1], S)
 
     if (phi.kind == "EF"):
-        SAT(CTLfree.parse("EU(1)(" + str(phi.child[0]) + ")"), S)
+        SAT(CTLtree.parse("EU(1)(" + str(phi.childs[0]) + ")"), S)
 
     if (phi.kind == "EG"):
-        SAT(CTLfree.parse("- AF -" + str(phi.child[0])), S)
+        SAT(CTLtree.parse("- AF -" + str(phi.childs[0])), S)
 
     if (phi.kind == "AF"):
-        SAT_AF(phi.child[0], S)
+        SAT_AF(phi.childs[0], S)
 
     if (phi.kind == "AG"):
-        SAT(CTLfree.parse("- EF -" + str(phi.child[0])), S)
+        SAT(CTLtree.parse("- EF -" + str(phi.childs[0])), S)
 
 
 def SAT_AF(phi, S):
@@ -289,10 +289,9 @@ def SAT_EU(phi, psi, S):
     
 def SAT_EX(phi, S):
     X = SAT(phi, S)
-    Y = Pre_fraca(X)
+    Y = Pre_fraca(kripke, ddt, X)
     return Y
 
-    
 
 
 #------------main------------------------------------------------------------
@@ -319,10 +318,3 @@ else:
     print ("SAT")
     print ("lista de todos os estados que SAT:")
     print (list( SAT(phi, S).satisfy_all() ))
-
-'''
-array_b_prime = write_array_B_prime (ddt, modeloPhi)
-Pre_fraca (kripke, ddt, array_b_prime)
-print (Pre_fraca (kripke, ddt, array_b_prime))
-Pre_forte (b_s, kripke, ddt, modeloPhi)
-'''

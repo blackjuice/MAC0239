@@ -282,7 +282,7 @@ def SAT_EU(phi, psi, S):
     W = SAT(phi, S)
     Y = SAT(psi, S)
     X = S
-    while (X ~= Y):
+    while (X != Y):
         X = Y  
         Y = Y | (W & Pre_fraca(Y))
     return (Y)    
